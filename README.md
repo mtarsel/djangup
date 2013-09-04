@@ -1,5 +1,8 @@
 djangup
 =======
 
-Installs and configures Django for use with Digital Ocean hosting.
+The Django setup script.
 
+djangup will create a Django project and configure apache.
+
+Tested on a hosting plan with Digital Ocean.
