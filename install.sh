@@ -37,8 +37,10 @@ Allow from all
 #/etc/apache2/httpd.conf 
 
 echo "writiing to wsgi"
-sed '17i sys.path.insert(0,os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2]))'  /home/mick/projects/djangup/$projectName/$projectName/wsgi.py
+#sed '17i sys.path.insert(0,os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2]))' /home/mick/projects/djangup/$projectName/$projectName/wsgi.py | > /home/mick/projects/djangup/$projectName/$projectName/wsgi.py
 #/root/$projectName/$projectName/wsgi.py
+
+sed -e '17s/$/sys.path.insert(0,os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2]))/' -i /home/mick/projects/djangup/$projectName/$projectName/wsgi.py
 
 echo "written to wsgi"
 #a2dissite default
