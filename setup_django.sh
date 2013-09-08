@@ -1,33 +1,52 @@
 #!/bin/bash
 
+sudo apt-get update
+sudo apt-get install python-pip python-dev apache2-prefork-dev apache2 apache2.2-common apache2-mpm-prefork apache2-utils libexpat1 ssl-cert libapache2-mod-wsgi
+pip install django
 
-#### DJANGO INSTALLATION ####
+echo "Please enter new user's name"
+read userName
 
-cd /home/$userName
+sudo useradd -m $userName
 
-django-admin.py startproject $projectName
+echo "Please enter Django project name: "
+read projectName
 
-cd $projectName/$projectName
-
-mkdir templates
-mkdir static
-cd static
-mkdir css 
-mkdir js
-mkdir img
-
-echo "writiing to wsgi.py"
-
-#TODO set line number dynamically
-sed -e '17s/$/sys.path.insert(0,os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2]))/' -i /home/$userName/$projectName/$projectName/wsgi.py
-
-sed -i "/import os/c\import os, sys" /home/$userName/$projectName/$projectName/wsgi.py
-
-echo "written to wsgi.py"
+sudo chmod +x django_prefs.sh
+sudo su ${userName} -c "userName=$userName projectName=$projectName ./django_prefs.sh"
+#executes commands in 'setup_django.sh' for user django 
 
 
-sed -i "/STATIC_ROOT/c\STATIC_ROOT = \\'/home/$userName/$projectName/$projectName/\\'" /home/$userName/$projectName/$projectName/settings.py
+#### APACHE CONFIGS ####
 
-sed -i "/STATICFILES_DIRS = /c\STATICFILES_DIRS = (\\'/home/$userName/$projectName/$projectName/static/\\'," /home/$userName/$projectName/$projectName/settings.py
+echo "Configuring Apache with Django.... "
 
-sed -i "/TEMPLATE_DIRS = /c\TEMPLATE_DIRS = (\\'/home/$userName/$projectName/$projectName/templates/\\'," /home/$userName/$projectName/$projectName/settings.py
+printf "
+WSGIScriptAlias / /home/$userName/$projectName/$projectName/wsgi.py
+
+WSGIPythonPath /home/$userName/$projectName
+
+Alias /static /home/$userName/$projectName/$projectName/static
+<Directory /home/$userName/$projectName/$projectName>
+<Files wsgi.py>
+Order deny,allow
+Allow from all
+</Files>
+</Directory>" > /etc/apache2/httpd.conf 
+
+printf "<VirtualHost *:80>
+        ServerName $projectName.com
+        ServerAlias $projectName.com
+        WSGIScriptAlias / /home/$userName/$projectName/$projectName/wsgi.py
+        Alias /static/ /home/$userName/$projectName/$projectName/static/
+        <Location "/static/">
+            Options -Indexes
+        </Location>
+</VirtualHost>" > /etc/apache2/sites-available/$projectName
+
+a2dissite default
+
+a2ensite $projectName
+
+service apache2 restart
+
