@@ -7,12 +7,12 @@ pip install django
 echo "Please enter new user's name"
 read userName
 
-sudo adduser $userName -m
+sudo useradd -m $userName
 
 echo "Please enter Django project name: "
 read projectName
 
-sudo su django -c userName=$userName projectName=$projectName ./setup_django.sh 
+sudo su ${userName} -c "userName=$userName projectName=$projectName ./setup_django.sh"
 #executes commands in 'setup_django.sh' for user django 
 
 
@@ -33,7 +33,18 @@ Allow from all
 </Files>
 </Directory>" > /etc/apache2/httpd.conf 
 
+printf "<VirtualHost *:80>
+        ServerName $projectName.com
+        ServerAlias $projectName.com
+        WSGIScriptAlias / /home/$userName/$projectName/$projectName/wsgi.py
+        Alias /static/ /home/$userName/$projectName/$projectName/static/
+        <Location "/static/">
+            Options -Indexes
+        </Location>
+</VirtualHost>" > /etc/apache2/sites-available/$projectName
+
 a2dissite default
+
 a2ensite $projectName
 
 service apache2 restart
