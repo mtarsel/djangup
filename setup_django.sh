@@ -23,6 +23,9 @@ sed -e '17s/$/sys.path.insert(0,os.sep.join(os.path.abspath(__file__).split(os.s
 
 echo "written to wsgi.py"
 
-#TODO add static file directories to settings.py
-cat /home/$userName/$projectName/$projectName/settings.py | awk '/TEMP_DIR/ {print FNR}'
 
+sed -i "/STATIC_ROOT/c\STATIC_ROOT = \\'/home/$userName/$projectName/$projectName/\\'" /home/$userName/$projectName/$projectName/settings.py
+
+sed -i "/STATICFILES_DIRS = /c\STATICFILES_DIRS = (\\'/home/$userName/$projectName/$projectName/static/\\'," /home/$userName/$projectName/$projectName/settings.py
+
+sed -i "/TEMPLATE_DIRS = /c\TEMPLATE_DIRS = (\\'/home/$userName/$projectName/$projectName/templates/\\'," /home/$userName/$projectName/$projectName/settings.py
