@@ -21,6 +21,8 @@ echo "writiing to wsgi.py"
 #TODO set line number dynamically
 sed -e '17s/$/sys.path.insert(0,os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2]))/' -i /home/$userName/$projectName/$projectName/wsgi.py
 
+sed -i "/import os/c\import os, sys" /home/$userName/$projectName/$projectName/wsgi.py
+
 echo "written to wsgi.py"
 
 
